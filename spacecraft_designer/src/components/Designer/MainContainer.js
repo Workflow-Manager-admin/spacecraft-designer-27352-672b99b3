@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import "./MainContainer.css";
 import SidebarPalette from "./SidebarPalette";
 import CanvasArea from "./CanvasArea";
+import ThreeDViewPlaceholder from "./ThreeDViewPlaceholder";
 
 /**
  * PUBLIC_INTERFACE
@@ -100,16 +101,20 @@ function MainContainer() {
         {/* Left Sidebar: Draggable palette */}
         <SidebarPalette onDragStart={handlePaletteDragStart} />
 
-        {/* Central Canvas */}
-        <CanvasArea
-          items={canvasItems}
-          onDropItem={handleDropItem}
-          onSelectItem={handleSelectItem}
-          onMoveItem={handleMoveItem}
-          selectedItemId={selectedItemId}
-          onDeleteSelected={handleDeleteSelected}
-          viewMode={viewMode}
-        />
+        {/* Central Canvas or 3D View */}
+        {viewMode === "2D" ? (
+          <CanvasArea
+            items={canvasItems}
+            onDropItem={handleDropItem}
+            onSelectItem={handleSelectItem}
+            onMoveItem={handleMoveItem}
+            selectedItemId={selectedItemId}
+            onDeleteSelected={handleDeleteSelected}
+            viewMode={viewMode}
+          />
+        ) : (
+          <ThreeDViewPlaceholder />
+        )}
 
         {/* Right Sidebar: Properties, Measurements */}
         <aside className="designer-sidebar designer-sidebar-right" aria-label="Element properties">
