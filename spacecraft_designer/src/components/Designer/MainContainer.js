@@ -406,19 +406,71 @@ function MainContainer() {
         <SidebarPalette onDragStart={handlePaletteDragStart} />
 
         {/* Central Canvas or 3D View */}
-        {viewMode === "2D" ? (
-          <CanvasArea
-            items={canvasItems}
-            onDropItem={handleDropItem}
-            onSelectItem={handleSelectItem}
-            onMoveItem={handleMoveItem}
-            selectedItemId={selectedItemId}
-            onDeleteSelected={handleDeleteSelected}
-            viewMode={viewMode}
-          />
-        ) : (
-          <ThreeDViewPlaceholder />
-        )}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          {viewMode === "2D" && (
+            <div style={{ maxWidth: 960, width: "100%", margin: "0 auto", display: "flex", flexDirection: "column" }}>
+              {/* Measurement tools control bar */}
+              <div style={{
+                display: "flex",
+                gap: "10px",
+                marginBottom: "7px",
+                alignItems: "center",
+                minHeight: "38px",
+                paddingLeft: 3,
+                userSelect: "none"
+              }}>
+                <span style={{ color: "#1976D2", fontWeight: 600 }}>Measure:</span>
+                <button
+                  className="btn"
+                  style={{
+                    borderColor: measurementMode === "distance" ? "#1976D2" : "#bbb",
+                    background: measurementMode === "distance" ? "#e2f0fb" : "#fff",
+                    color: "#1976D2",
+                    fontWeight: measurementMode === "distance" ? 700 : 500,
+                  }}
+                  onClick={() => handleToggleMeasurement("distance")}
+                  aria-pressed={measurementMode === "distance"}
+                >
+                  Distance
+                </button>
+                <button
+                  className="btn"
+                  style={{
+                    borderColor: measurementMode === "area" ? "#1976D2" : "#bbb",
+                    background: measurementMode === "area" ? "#f4ecfa" : "#fff",
+                    color: "#1976D2",
+                    fontWeight: measurementMode === "area" ? 700 : 500,
+                  }}
+                  onClick={() => handleToggleMeasurement("area")}
+                  aria-pressed={measurementMode === "area"}
+                >
+                  Area
+                </button>
+                {measurementMode && (
+                  <span style={{ color: "#d13b10", marginLeft: 7, fontSize: "0.97em" }}>
+                    {measurementMode === "distance" ? "Click & drag to measure." : "Click to add polygon vertices, double-click/right-click to close/finish."}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          {viewMode === "2D" ? (
+            <CanvasArea
+              items={canvasItems}
+              onDropItem={handleDropItem}
+              onSelectItem={handleSelectItem}
+              onMoveItem={handleMoveItem}
+              selectedItemId={selectedItemId}
+              onDeleteSelected={handleDeleteSelected}
+              viewMode={viewMode}
+              measurementMode={measurementMode}
+              onMeasurementResult={handleMeasurementResult}
+              onToggleMeasurement={handleToggleMeasurement}
+            />
+          ) : (
+            <ThreeDViewPlaceholder />
+          )}
+        </div>
 
         {/* Right Sidebar: Properties, Measurements */}
         <aside className="designer-sidebar designer-sidebar-right" aria-label="Element properties">
@@ -436,9 +488,26 @@ function MainContainer() {
             <div className="measurements">
               <strong>Measurement Tools</strong>
               <ul>
-                <li>Distance: --</li>
-                <li>Area: --</li>
+                <li>
+                  Distance:{" "}
+                  {measurementResult && typeof measurementResult.distance === "number"
+                    ? measurementResult.distance.toFixed(1) + " px"
+                    : "--"}
+                </li>
+                <li>
+                  Area:{" "}
+                  {measurementResult && typeof measurementResult.area === "number"
+                    ? measurementResult.area.toFixed(2) + " px²"
+                    : "--"}
+                </li>
               </ul>
+              <div style={{ fontSize: "0.89em", color: "#1976D2", marginTop: "4px" }}>
+                {measurementMode === "distance" && "Click two points on canvas, or drag, to get distance."}
+                {measurementMode === "area" && "Click to add polygon points, double-click/right-click to finish."}
+                {measurementMode && (
+                  <span style={{ marginLeft: 3, color: "#bf1111" }}>ESC cancels.</span>
+                )}
+              </div>
             </div>
             <button
               className="btn"
