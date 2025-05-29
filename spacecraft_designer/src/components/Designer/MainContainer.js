@@ -1,20 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import "./MainContainer.css";
+import SidebarPalette from "./SidebarPalette";
+import CanvasArea from "./CanvasArea";
 
 /**
  * PUBLIC_INTERFACE
  * MainContainer for the SpaceCraft Designer.
- * Organizes overall layout: TopBar, LeftSidebar, CanvasArea, RightSidebar.
- * Handles 2D/3D view toggle and basic layout state.
+ * Contains global state and orchestrates layout, drag-drop, and editor logic.
  */
 function MainContainer() {
   // Canvas mode state
   const [viewMode, setViewMode] = useState("2D"); // "2D" | "3D"
 
+  // Items on the canvas: {id, type, x, y}
+  const [canvasItems, setCanvasItems] = useState([]);
+
+  // Selected item id for interaction
+  const [selectedItemId, setSelectedItemId] = useState(null);
+
+  // Counter for new ids
+  const [lastItemId, setLastItemId] = useState(0);
+
   // Handler to switch view modes
   // PUBLIC_INTERFACE
   const handleToggleView = () => {
     setViewMode(viewMode === "2D" ? "3D" : "2D");
+  };
+
+  // Called when a palette item begins drag
+  const handlePaletteDragStart = (e, type) => {
+    e.dataTransfer.setData("application/x-item-type", type);
+  };
+
+  // Called when an item is dropped from palette to canvas
+  const handleDropItem = ({ type, x, y }) => {
+    const id = lastItemId + 1;
+    setCanvasItems([
+      ...canvasItems,
+      { id, type, x, y }
+    ]);
+    setLastItemId(id);
+    setSelectedItemId(id);
+  };
+
+  // Select an item (by id)
+  const handleSelectItem = (id) => {
+    setSelectedItemId(id);
+  };
+
+  // Move item (when dragged on canvas)
+  // PUBLIC_INTERFACE
+  const handleMoveItem = (id, newX, newY) => {
+    setCanvasItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, x: newX, y: newY } : item
+      )
+    );
+  };
+
+  // Delete selected item
+  const handleDeleteSelected = () => {
+    if (selectedItemId == null) return;
+    setCanvasItems((items) =>
+      items.filter((item) => item.id !== selectedItemId)
+    );
+    setSelectedItemId(null);
   };
 
   return (
@@ -48,32 +98,31 @@ function MainContainer() {
 
       <div className="designer-content">
         {/* Left Sidebar: Draggable palette */}
-        <aside className="designer-sidebar designer-sidebar-left" aria-label="Elements palette">
-          <h3 className="sidebar-title">Palette</h3>
-          <div className="draggable-list">
-            <div className="draggable-item room">Room</div>
-            <div className="draggable-item wall">Wall</div>
-            <div className="draggable-item door">Door</div>
-            <div className="draggable-item window">Window</div>
-            <div className="draggable-item furniture">Furniture</div>
-          </div>
-        </aside>
+        <SidebarPalette onDragStart={handlePaletteDragStart} />
 
         {/* Central Canvas */}
-        <section className="designer-canvas-section" aria-label="Design canvas">
-          <div className={`canvas-container ${viewMode.toLowerCase()}-mode`}>
-            <span className="canvas-placeholder">
-              {viewMode} Canvas (Drag &amp; drop elements here)
-            </span>
-          </div>
-        </section>
+        <CanvasArea
+          items={canvasItems}
+          onDropItem={handleDropItem}
+          onSelectItem={handleSelectItem}
+          onMoveItem={handleMoveItem}
+          selectedItemId={selectedItemId}
+          onDeleteSelected={handleDeleteSelected}
+          viewMode={viewMode}
+        />
 
         {/* Right Sidebar: Properties, Measurements */}
         <aside className="designer-sidebar designer-sidebar-right" aria-label="Element properties">
           <h3 className="sidebar-title">Properties</h3>
           <div className="properties-placeholder">
             {/* Placeholder for properties/measurements panel */}
-            <p>Select an element to view details.</p>
+            <p>
+              {selectedItemId
+                ? `Selected: ${
+                    (canvasItems.find((it) => it.id === selectedItemId) || {}).type
+                  } #${selectedItemId}`
+                : "Select an element to view details."}
+            </p>
             <div className="measurements">
               <strong>Measurement Tools</strong>
               <ul>
@@ -81,6 +130,15 @@ function MainContainer() {
                 <li>Area: --</li>
               </ul>
             </div>
+            {selectedItemId && (
+              <button
+                className="btn"
+                style={{ marginTop: "12px", background: "#ffecec", color: "#c01010" }}
+                onClick={handleDeleteSelected}
+              >
+                Delete Element
+              </button>
+            )}
           </div>
         </aside>
       </div>
