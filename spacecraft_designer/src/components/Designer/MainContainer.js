@@ -71,6 +71,26 @@ function MainContainer() {
     setSelectedItemId(null);
   };
 
+  // Measurement UI state
+  const [measurementMode, setMeasurementMode] = useState(null); // 'distance' | 'area' | null
+  const [measurementResult, setMeasurementResult] = useState({ distance: null, area: null });
+
+  // Handlers for measurement tool activation
+  const handleToggleMeasurement = (tool) => {
+    if (measurementMode === tool) {
+      setMeasurementMode(null);
+      setMeasurementResult({ distance: null, area: null });
+    } else {
+      setMeasurementMode(tool);
+      setMeasurementResult({ distance: null, area: null });
+    }
+  };
+
+  // Handler for measurement result updates
+  const handleMeasurementResult = (result) => {
+    setMeasurementResult(result || { distance: null, area: null });
+  };
+
   // PUBLIC_INTERFACE
   // Save design to localStorage
   const handleSave = () => {
