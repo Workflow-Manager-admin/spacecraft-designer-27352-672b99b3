@@ -39,9 +39,16 @@ function MainContainer() {
   // Called when an item is dropped from palette to canvas
   const handleDropItem = ({ type, x, y }) => {
     const id = lastItemId + 1;
+    // Provide default size for room/wall/furniture/door/window
+    let initialDims = {};
+    if (type === "room") initialDims = { width: 100, height: 70 };
+    else if (type === "wall") initialDims = { width: 100, height: 14 };
+    else if (type === "door") initialDims = { width: 28, height: 40 };
+    else if (type === "window") initialDims = { width: 38, height: 22 };
+    else if (type === "furniture") initialDims = { width: 50, height: 36 };
     setCanvasItems([
       ...canvasItems,
-      { id, type, x, y }
+      { id, type, x, y, ...initialDims }
     ]);
     setLastItemId(id);
     setSelectedItemId(id);
