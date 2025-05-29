@@ -13,7 +13,7 @@ function MainContainer() {
   // Canvas mode state
   const [viewMode, setViewMode] = useState("2D"); // "2D" | "3D"
 
-  // Items on the canvas: {id, type, x, y}
+  // Items on the canvas: {id, type, x, y, width?, height?}
   const [canvasItems, setCanvasItems] = useState([]);
 
   // Selected item id for interaction

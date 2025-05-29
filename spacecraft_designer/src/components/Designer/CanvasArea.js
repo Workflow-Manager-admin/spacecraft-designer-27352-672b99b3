@@ -117,6 +117,13 @@ function CanvasArea({
             selected={selectedItemId === item.id}
             onSelect={() => !isMeasuring && onSelectItem(item.id)}
             onMove={onMoveItem}
+            width={item.width}
+            height={item.height}
+            onResize={
+              item.type === "room" || item.type === "wall"
+                ? (id, data) => onMoveItem(id, data.x, data.y, { width: data.width, height: data.height })
+                : undefined
+            }
           />
         ))}
       </div>
