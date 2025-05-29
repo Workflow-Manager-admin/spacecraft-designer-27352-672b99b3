@@ -156,19 +156,30 @@ function MainContainer() {
 
     // Build SVG content
     const getSvgForType = (item) => {
+      // Prefer actual width/height, else the defaults
+      const typeDefaults = {
+        room: { width: 100, height: 70 },
+        wall: { width: 100, height: 14 },
+        door: { width: 28, height: 40 },
+        window: { width: 38, height: 22 },
+        furniture: { width: 50, height: 36 },
+        default: { width: 40, height: 40 },
+      };
+      const w = typeof item.width === "number" ? item.width : (typeDefaults[item.type]?.width || typeDefaults.default.width);
+      const h = typeof item.height === "number" ? item.height : (typeDefaults[item.type]?.height || typeDefaults.default.height);
       switch (item.type) {
         case "room":
-          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="100" height="70" rx="7" fill="#E2F0FB" stroke="#1976D2" stroke-width="2"/><text x="${item.x + 100 / 2 + padding}" y="${item.y + 70 / 2 + padding + 7}" font-size="18" text-anchor="middle" fill="#1976D2" font-family="Inter,Arial">🏠</text>`;
+          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="${w}" height="${h}" rx="7" fill="#E2F0FB" stroke="#1976D2" stroke-width="2"/><text x="${item.x + w / 2 + padding}" y="${item.y + h / 2 + padding + 7}" font-size="18" text-anchor="middle" fill="#1976D2" font-family="Inter,Arial">🏠</text>`;
         case "wall":
-          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="100" height="14" rx="6" fill="#bbb" stroke="#1976D2" stroke-width="2"/>`;
+          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="${w}" height="${h}" rx="6" fill="#bbb" stroke="#1976D2" stroke-width="2"/>`;
         case "door":
-          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="28" height="40" rx="3" fill="#fff8e1" stroke="#FFC107" stroke-width="2"/><text x="${item.x + 14 + padding}" y="${item.y + 20 + padding + 2}" font-size="18" text-anchor="middle" fill="#FFC107" font-family="Inter,Arial">🚪</text>`;
+          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="${w}" height="${h}" rx="3" fill="#fff8e1" stroke="#FFC107" stroke-width="2"/><text x="${item.x + w / 2 + padding}" y="${item.y + h / 2 + padding + 2}" font-size="18" text-anchor="middle" fill="#FFC107" font-family="Inter,Arial">🚪</text>`;
         case "window":
-          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="38" height="22" rx="3" fill="#e1f7fa" stroke="#61b5be" stroke-width="2"/><text x="${item.x + 19 + padding}" y="${item.y + 14 + padding}" font-size="14" text-anchor="middle" fill="#1a7491" font-family="Inter,Arial">🪟</text>`;
+          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="${w}" height="${h}" rx="3" fill="#e1f7fa" stroke="#61b5be" stroke-width="2"/><text x="${item.x + w / 2 + padding}" y="${item.y + h / 2 + padding}" font-size="14" text-anchor="middle" fill="#1a7491" font-family="Inter,Arial">🪟</text>`;
         case "furniture":
-          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="50" height="36" rx="6" fill="#fff8e6" stroke="#FFC107" stroke-width="2" stroke-dasharray="5,2"/><text x="${item.x + 25 + padding}" y="${item.y + 21 + padding}" font-size="16" text-anchor="middle" fill="#FFC107" font-family="Inter,Arial">🪑</text>`;
+          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="${w}" height="${h}" rx="6" fill="#fff8e6" stroke="#FFC107" stroke-width="2" stroke-dasharray="5,2"/><text x="${item.x + w / 2 + padding}" y="${item.y + h / 2 + padding}" font-size="16" text-anchor="middle" fill="#FFC107" font-family="Inter,Arial">🪑</text>`;
         default:
-          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="40" height="40" rx="7" fill="#ddd" stroke="#000" stroke-width="2"/><text x="${item.x + 20 + padding}" y="${item.y + 27 + padding}" font-size="14" text-anchor="middle" fill="#222" font-family="Inter,Arial">${item.type}</text>`;
+          return `<rect x="${item.x + padding}" y="${item.y + padding}" width="${w}" height="${h}" rx="7" fill="#ddd" stroke="#000" stroke-width="2"/><text x="${item.x + w / 2 + padding}" y="${item.y + h / 2 + padding + 7}" font-size="14" text-anchor="middle" fill="#222" font-family="Inter,Arial">${item.type}</text>`;
       }
     };
 
