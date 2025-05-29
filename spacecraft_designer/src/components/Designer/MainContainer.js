@@ -59,13 +59,22 @@ function MainContainer() {
     setSelectedItemId(id);
   };
 
-  // Move item (when dragged on canvas)
+  // Move item (when dragged or resized on canvas)
   // PUBLIC_INTERFACE
-  const handleMoveItem = (id, newX, newY) => {
+  // newDims: optional {width, height} for resize
+  const handleMoveItem = (id, newX, newY, newDims) => {
     setCanvasItems((items) =>
-      items.map((item) =>
-        item.id === id ? { ...item, x: newX, y: newY } : item
-      )
+      items.map((item) => {
+        if (item.id === id) {
+          const toUpdate = { ...item, x: newX, y: newY };
+          if (newDims && (item.type === "room" || item.type === "wall")) {
+            if ('width' in newDims) toUpdate.width = newDims.width;
+            if ('height' in newDims) toUpdate.height = newDims.height;
+          }
+          return toUpdate;
+        }
+        return item;
+      })
     );
   };
 
@@ -123,13 +132,17 @@ function MainContainer() {
     const padding = 30;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     if (canvasItems.length > 0) {
-      canvasItems.forEach(({ x, y, type }) => {
-        let w = 60, h = 40; // Default for unknown types
-        if (type === "room") { w = 100; h = 70; }
-        else if (type === "wall") { w = 100; h = 14; }
-        else if (type === "door") { w = 28; h = 40; }
-        else if (type === "window") { w = 38; h = 22; }
-        else if (type === "furniture") { w = 50; h = 36; }
+      canvasItems.forEach(({ x, y, type, width, height }) => {
+        let w = width, h = height;
+        if (typeof w !== "number" || typeof h !== "number") {
+          // fallback for old records
+          if (type === "room") { w = 100; h = 70; }
+          else if (type === "wall") { w = 100; h = 14; }
+          else if (type === "door") { w = 28; h = 40; }
+          else if (type === "window") { w = 38; h = 22; }
+          else if (type === "furniture") { w = 50; h = 36; }
+          else { w = 60; h = 40; }
+        }
         minX = Math.min(minX, x);
         minY = Math.min(minY, y);
         maxX = Math.max(maxX, x + w);
